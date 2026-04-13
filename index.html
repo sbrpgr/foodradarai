@@ -1,394 +1,277 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodRadar.AI - 생성형 AI 식품 가치 분석 플랫폼</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>여행 일정 생성기</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --line: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+    }
+
+    p { margin: 0; color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid #bfdbfe;
+      border-color: var(--accent);
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--accent-dark); }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .secondary:hover { background: #d1d5db; }
+
+    .result-title {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+    }
+
+    .day {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #fcfdff;
+    }
+
+    .day h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #111827;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 4px;
+      color: #374151;
+    }
+
+    .hint { margin-top: 8px; font-size: 0.86rem; }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      body { padding: 14px; }
+    }
+  </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-radar-chart text-white text-lg"></i>
-                    </div>
-                    <h1 class="text-xl font-bold text-gray-800">FoodRadar.AI</h1>
-                </div>
-                <div class="hidden md:flex space-x-6">
-                    <a href="#home" class="text-gray-600 hover:text-green-600 font-medium transition-colors">홈</a>
-                    <a href="#analysis" class="text-gray-600 hover:text-green-600 font-medium transition-colors">분석</a>
-                    <a href="#about" class="text-gray-600 hover:text-green-600 font-medium transition-colors">소개</a>
-                    <a href="#contact" class="text-gray-600 hover:text-green-600 font-medium transition-colors">문의</a>
-                </div>
-                <div class="md:hidden">
-                    <i class="fas fa-bars text-gray-600 text-xl cursor-pointer" id="mobile-menu-toggle"></i>
-                </div>
-            </div>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>🧳 여행 일정 생성기</h1>
+      <p>목적지/기간/테마를 입력하면 하루 단위 일정을 자동으로 생성합니다.</p>
+
+      <div class="grid">
+        <div>
+          <label for="destination">목적지</label>
+          <input id="destination" type="text" placeholder="예: 도쿄, 제주, 파리" />
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="home" class="pt-20 pb-16 bg-gradient-to-br from-green-50 to-blue-50">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-                AI가 분석하는 <span class="text-green-600">식품 가치</span>
-            </h2>
-            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                3초 만에 유사 제품을 탐색하고, 6가지 핵심 지표로 비교 분석하여 
-                가장 합리적인 선택을 도와드립니다.
-            </p>
-            
-            <!-- AI Status Info -->
-            <div id="ai-status-info" class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 max-w-4xl mx-auto rounded-r-lg">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-robot text-green-400 text-xl"></i>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <p class="text-sm text-green-700">
-                            <strong>🤖 Google Gemini AI가 연동되어 실제 AI 분석을 제공합니다!</strong>
-                        </p>
-                    </div>
-                    <button onclick="hideAIStatusInfo()" class="ml-2 text-green-400 hover:text-green-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Input Section -->
-            <div class="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto">
-                <h3 class="text-2xl font-semibold text-gray-800 mb-6">
-                    제품 분석 시작하기
-                    <span id="ai-status-indicator" class="ml-2 text-sm"></span>
-                </h3>
-                
-                <!-- Input Methods -->
-                <div class="grid md:grid-cols-4 gap-4 mb-6">
-                    <button class="input-method-btn active" data-method="text">
-                        <i class="fas fa-keyboard text-2xl mb-2"></i>
-                        <span class="block">제품명 입력</span>
-                    </button>
-                    <button class="input-method-btn" data-method="image">
-                        <i class="fas fa-camera text-2xl mb-2"></i>
-                        <span class="block">사진 업로드</span>
-                    </button>
-                    <button class="input-method-btn" data-method="link">
-                        <i class="fas fa-link text-2xl mb-2"></i>
-                        <span class="block">제품 링크</span>
-                    </button>
-                    <button class="input-method-btn" data-method="category">
-                        <i class="fas fa-tags text-2xl mb-2"></i>
-                        <span class="block">카테고리</span>
-                    </button>
-                </div>
-
-                <!-- Input Forms -->
-                <div id="text-input" class="input-form">
-                    <div class="flex space-x-4">
-                        <input type="text" id="product-name" placeholder="예: 신라면 더레드, 오뚜기 진라면..." 
-                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <button onclick="analyzeProduct()" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                            <i class="fas fa-search mr-2"></i>분석하기
-                        </button>
-                    </div>
-                </div>
-
-                <div id="image-input" class="input-form hidden">
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                        <p class="text-gray-600 mb-4">제품 이미지를 드래그하거나 클릭하여 업로드</p>
-                        <p class="text-sm text-green-600 mb-4">
-                            <i class="fas fa-robot mr-1"></i>
-                            <span id="vision-status">Gemini Vision API로 실제 이미지 분석</span>
-                        </p>
-                        <input type="file" id="product-image" accept="image/*" class="hidden">
-                        <button onclick="document.getElementById('product-image').click()" 
-                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            파일 선택
-                        </button>
-                    </div>
-                </div>
-
-                <div id="link-input" class="input-form hidden">
-                    <div class="flex space-x-4">
-                        <input type="url" id="product-link" placeholder="예: https://www.coupang.com/products/..." 
-                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <button onclick="analyzeLink()" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                            <i class="fas fa-link mr-2"></i>분석하기
-                        </button>
-                    </div>
-                </div>
-
-                <div id="category-input" class="input-form hidden">
-                    <div class="grid md:grid-cols-3 gap-4">
-                        <select id="category-select" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                            <option value="">카테고리 선택</option>
-                            <option value="instant-noodles">라면/면류</option>
-                            <option value="protein-bar">단백질바</option>
-                            <option value="snacks">과자/스낵</option>
-                            <option value="beverages">음료</option>
-                            <option value="dairy">유제품</option>
-                            <option value="frozen">냉동식품</option>
-                        </select>
-                        <input type="text" id="category-detail" placeholder="예: 저당 초콜릿, 비건 만두" 
-                               class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <button onclick="analyzeCategory()" class="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
-                            <i class="fas fa-tags mr-2"></i>탐색하기
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div>
+          <label for="startDate">출발일</label>
+          <input id="startDate" type="date" />
         </div>
+        <div>
+          <label for="days">여행 일수</label>
+          <input id="days" type="number" min="1" max="14" value="3" />
+        </div>
+        <div>
+          <label for="style">여행 스타일</label>
+          <select id="style">
+            <option value="힐링">힐링</option>
+            <option value="미식">미식</option>
+            <option value="액티비티">액티비티</option>
+            <option value="문화/예술">문화/예술</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="generateBtn">일정 만들기</button>
+        <button id="resetBtn" class="secondary" type="button">초기화</button>
+      </div>
+      <p class="hint">※ 실제 예약 전 운영시간/휴무일은 꼭 확인하세요.</p>
     </section>
 
-    <!-- Analysis Results Section -->
-    <section id="analysis-results" class="py-16 bg-white hidden">
-        <div class="container mx-auto px-4">
-            <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">AI 분석 결과</h3>
-            
-            <!-- Loading Animation -->
-            <div id="loading-animation" class="text-center py-12">
-                <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mb-4"></div>
-                <div id="loading-status">
-                    <p class="text-lg text-gray-600 mb-2">AI가 유사 제품을 탐색하고 분석 중입니다...</p>
-                    <p class="text-sm text-gray-500" id="loading-substatus">데이터베이스 검색 중...</p>
-                </div>
-                <div class="mt-4 max-w-md mx-auto bg-gray-200 rounded-full h-2">
-                    <div class="bg-green-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
-                </div>
-                <div class="mt-4 text-xs text-green-600">
-                    <span id="analysis-mode-indicator">🤖 Gemini AI 분석 모드</span>
-                </div>
-            </div>
-
-            <!-- Results Content -->
-            <div id="results-content" class="hidden">
-                <!-- Base Product Info -->
-                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 mb-8">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4">
-                        <i class="fas fa-crosshairs text-green-600 mr-2"></i>분석 기준 제품
-                    </h4>
-                    <div id="base-product-info" class="flex items-center space-x-4">
-                        <!-- 동적으로 채워질 기준 제품 정보 -->
-                    </div>
-                </div>
-
-                <!-- Radar Chart Comparison -->
-                <div class="grid lg:grid-cols-2 gap-8 mb-12">
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h4 class="text-xl font-semibold text-gray-800 mb-6 text-center">6대 핵심 지표 비교</h4>
-                        <div class="radar-chart-container" style="height: 400px;">
-                            <canvas id="radar-chart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h4 class="text-xl font-semibold text-gray-800 mb-6">AI 분석 요약</h4>
-                        <div id="ai-summary" class="space-y-4">
-                            <!-- AI 생성 요약문이 여기에 표시됩니다 -->
-                        </div>
-                        
-                        <div class="mt-6 p-4 bg-green-50 rounded-lg">
-                            <h5 class="font-semibold text-green-800 mb-2">
-                                <i class="fas fa-trophy mr-2"></i>AI 추천 제품
-                            </h5>
-                            <div id="recommended-product" class="text-green-700">
-                                <!-- 추천 제품 정보 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Analysis Tabs -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                    <div class="flex border-b border-gray-200 mb-6">
-                        <button class="analysis-tab-btn active" data-tab="comparison">
-                            <i class="fas fa-table mr-2"></i>제품 비교
-                        </button>
-                        <button class="analysis-tab-btn" data-tab="ingredients">
-                            <i class="fas fa-list-alt mr-2"></i>원재료 분석
-                        </button>
-                        <button class="analysis-tab-btn" data-tab="nutrition">
-                            <i class="fas fa-chart-pie mr-2"></i>영양성분
-                        </button>
-                    </div>
-
-                    <!-- 제품 비교 탭 -->
-                    <div id="comparison-tab" class="analysis-tab-content">
-                        <h4 class="text-xl font-semibold text-gray-800 mb-6">상세 비교표</h4>
-                        <div class="overflow-x-auto">
-                            <table id="comparison-table" class="w-full text-sm">
-                                <thead>
-                                    <tr class="bg-gray-50">
-                                        <th class="px-4 py-3 text-left">제품명</th>
-                                        <th class="px-4 py-3 text-center">가격효율성</th>
-                                        <th class="px-4 py-3 text-center">영양균형</th>
-                                        <th class="px-4 py-3 text-center">유해성분</th>
-                                        <th class="px-4 py-3 text-center">첨가물안전성</th>
-                                        <th class="px-4 py-3 text-center">소비자신뢰도</th>
-                                        <th class="px-4 py-3 text-center">친환경성</th>
-                                        <th class="px-4 py-3 text-center">최저가 구매</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="comparison-tbody">
-                                    <!-- 동적으로 채워질 비교 데이터 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- 원재료 분석 탭 -->
-                    <div id="ingredients-tab" class="analysis-tab-content hidden">
-                        <h4 class="text-xl font-semibold text-gray-800 mb-6">AI 원재료 분석</h4>
-                        <div id="ingredients-analysis-content">
-                            <!-- 동적으로 채워질 원재료 분석 내용 -->
-                        </div>
-                    </div>
-
-                    <!-- 영양성분 탭 -->
-                    <div id="nutrition-tab" class="analysis-tab-content hidden">
-                        <h4 class="text-xl font-semibold text-gray-800 mb-6">영양성분 상세 분석</h4>
-                        <div id="nutrition-analysis-content">
-                            <!-- 동적으로 채워질 영양성분 분석 내용 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <section class="card" id="resultCard">
+      <h2 class="result-title">결과 화면</h2>
+      <p id="emptyText">입력 후 <strong>일정 만들기</strong> 버튼을 눌러주세요.</p>
+      <div id="result"></div>
     </section>
+  </main>
 
-    <!-- Features Section -->
-    <section class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">FoodRadar.AI 핵심 기능</h3>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-brain text-green-600 text-2xl"></i>
-                    </div>
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4">AI 기반 유사 제품 탐색</h4>
-                    <p class="text-gray-600">
-                        단순 키워드 검색이 아닌, AI가 제품의 의미적 특성을 분석하여 
-                        진정으로 유사한 제품들을 3초 만에 찾아드립니다.
-                    </p>
-                </div>
-                
-                <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-chart-radar text-blue-600 text-2xl"></i>
-                    </div>
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4">6대 핵심 지표 동시 비교</h4>
-                    <p class="text-gray-600">
-                        가격효율성, 영양균형, 유해성분, 첨가물안전성, 소비자신뢰도, 친환경성을 
-                        한눈에 비교할 수 있는 레이더 차트를 제공합니다.
-                    </p>
-                </div>
-                
-                <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow">
-                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-database text-purple-600 text-2xl"></i>
-                    </div>
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4">공공데이터 AI 분석</h4>
-                    <p class="text-gray-600">
-                        공공데이터포털의 방대한 식품 정보를 AI로 정형화하여 
-                        신뢰할 수 있는 객관적 분석 결과를 제공합니다.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
+  <script>
+    const templates = {
+      "힐링": ["브런치 카페", "대표 공원 산책", "스파/온천", "야경 명소"],
+      "미식": ["로컬 조식 맛집", "시장 먹거리 투어", "대표 레스토랑", "디저트 투어"],
+      "액티비티": ["아침 러닝/트레킹", "체험 액티비티", "스포츠/레저", "선셋 포인트"],
+      "문화/예술": ["박물관/미술관", "역사 지구 산책", "로컬 공연 관람", "책방/갤러리"]
+    };
 
-    <!-- About Section -->
-    <section id="about" class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto text-center">
-                <h3 class="text-3xl font-bold text-gray-800 mb-8">합리적 소비의 새로운 패러다임</h3>
-                <p class="text-lg text-gray-600 mb-8">
-                    72조 원 규모의 국내 가공식품 시장에서 소비자는 '더 나은 선택'을 하고자 하지만, 
-                    정보의 홍수 속에서 길을 잃고 있습니다. FoodRadar.AI는 이러한 문제를 해결하기 위해 탄생했습니다.
-                </p>
-                
-                <div class="grid md:grid-cols-2 gap-8 mt-12">
-                    <div class="bg-red-50 rounded-2xl p-6">
-                        <h4 class="text-xl font-semibold text-red-800 mb-4">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>기존의 문제점
-                        </h4>
-                        <ul class="text-left text-red-700 space-y-2">
-                            <li>• 복잡한 원재료명 해독의 어려움</li>
-                            <li>• 여러 플랫폼을 오가는 비효율적 탐색</li>
-                            <li>• 광고와 주관적 후기에 의존</li>
-                            <li>• 객관적 비교 기준의 부재</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="bg-green-50 rounded-2xl p-6">
-                        <h4 class="text-xl font-semibold text-green-800 mb-4">
-                            <i class="fas fa-check-circle mr-2"></i>FoodRadar.AI 솔루션
-                        </h4>
-                        <ul class="text-left text-green-700 space-y-2">
-                            <li>• AI 기반 3초 유사 제품 탐색</li>
-                            <li>• 통합된 원스톱 분석 플랫폼</li>
-                            <li>• 공공데이터 기반 객관적 분석</li>
-                            <li>• 6가지 핵심 지표 동시 비교</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    const destinationEl = document.getElementById("destination");
+    const startDateEl = document.getElementById("startDate");
+    const daysEl = document.getElementById("days");
+    const styleEl = document.getElementById("style");
+    const generateBtn = document.getElementById("generateBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const resultEl = document.getElementById("result");
+    const emptyTextEl = document.getElementById("emptyText");
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4 text-center">
-            <h3 class="text-3xl font-bold text-gray-800 mb-8">문의하기</h3>
-            <p class="text-lg text-gray-600 mb-8">
-                FoodRadar.AI에 대해 궁금한 점이 있으시거나 제휴를 원하시나요?
-            </p>
-            <div class="max-w-md mx-auto space-y-4">
-                <a href="mailto:contact@foodradar.ai" 
-                   class="block bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors">
-                    <i class="fas fa-envelope mr-2"></i>이메일 문의
-                </a>
-                <div class="text-gray-600">
-                    <p>이메일: contact@foodradar.ai</p>
-                    <p>전화: 02-1234-5678</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    function formatDate(baseDate, offset) {
+      const d = new Date(baseDate);
+      d.setDate(d.getDate() + offset);
+      return d.toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "short" });
+    }
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4 text-center">
-            <div class="flex items-center justify-center space-x-3 mb-4">
-                <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-radar-chart text-white"></i>
-                </div>
-                <span class="text-xl font-bold">FoodRadar.AI</span>
-            </div>
-            <p class="text-gray-400 mb-4">
-                생성형 AI와 공공데이터를 활용한 식품 가치 분석 및 합리적 소비 추천 플랫폼
-            </p>
-            <div class="text-sm text-gray-500">
-                <p>&copy; 2025 FoodRadar.AI Team. All rights reserved.</p>
-                <p class="mt-2">
-                    공공데이터포털 연동 | 식품의약품안전처 승인 | 개인정보보호정책 | 이용약관
-                </p>
-            </div>
-        </div>
-    </footer>
+    function generatePlan() {
+      const destination = destinationEl.value.trim();
+      const startDate = startDateEl.value;
+      const days = Number(daysEl.value);
+      const style = styleEl.value;
 
-    <script src="js/api.js"></script>
-    <script src="js/gemini-api.js"></script>
-    <script src="js/usage-monitor.js"></script>
-    <script src="js/main.js"></script>
+      if (!destination) {
+        alert("목적지를 입력해주세요.");
+        destinationEl.focus();
+        return;
+      }
+
+      if (!startDate) {
+        alert("출발일을 선택해주세요.");
+        startDateEl.focus();
+        return;
+      }
+
+      if (!days || days < 1 || days > 14) {
+        alert("여행 일수는 1~14일 사이로 입력해주세요.");
+        daysEl.focus();
+        return;
+      }
+
+      const blocks = [];
+      const places = templates[style] || templates["힐링"];
+
+      for (let i = 0; i < days; i += 1) {
+        const title = `${i + 1}일차 · ${formatDate(startDate, i)}`;
+        const items = [
+          `${destination} ${places[0]}`,
+          `${destination} ${places[1]}`,
+          `${destination} ${places[2]}`,
+          `${destination} ${places[3]}`
+        ];
+
+        blocks.push(`
+          <article class="day">
+            <h3>${title}</h3>
+            <ul>
+              <li>오전: ${items[0]}</li>
+              <li>점심: ${items[1]}</li>
+              <li>오후: ${items[2]}</li>
+              <li>저녁: ${items[3]}</li>
+            </ul>
+          </article>
+        `);
+      }
+
+      emptyTextEl.style.display = "none";
+      resultEl.innerHTML = `
+        <p><strong>${destination}</strong> · <strong>${days}일</strong> · <strong>${style}</strong> 테마 일정입니다.</p>
+        ${blocks.join("")}
+      `;
+    }
+
+    function resetForm() {
+      destinationEl.value = "";
+      startDateEl.value = "";
+      daysEl.value = 3;
+      styleEl.value = "힐링";
+      resultEl.innerHTML = "";
+      emptyTextEl.style.display = "block";
+      destinationEl.focus();
+    }
+
+    generateBtn.addEventListener("click", generatePlan);
+    resetBtn.addEventListener("click", resetForm);
+  </script>
 </body>
 </html>
