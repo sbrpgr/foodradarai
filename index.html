@@ -70,7 +70,7 @@
                 </h3>
                 
                 <!-- Input Methods -->
-                <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="grid md:grid-cols-5 gap-4 mb-6">
                     <button class="input-method-btn active" data-method="text">
                         <i class="fas fa-keyboard text-2xl mb-2"></i>
                         <span class="block">제품명 입력</span>
@@ -86,6 +86,10 @@
                     <button class="input-method-btn" data-method="category">
                         <i class="fas fa-tags text-2xl mb-2"></i>
                         <span class="block">카테고리</span>
+                    </button>
+                    <button class="input-method-btn" data-method="gift">
+                        <i class="fas fa-gift text-2xl mb-2"></i>
+                        <span class="block">선물 추천</span>
                     </button>
                 </div>
 
@@ -143,6 +147,24 @@
                             <i class="fas fa-tags mr-2"></i>탐색하기
                         </button>
                     </div>
+                </div>
+
+                <div id="gift-input" class="input-form hidden">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <input type="text" id="gift-query" placeholder="예: 30대 직장인 생일 선물" 
+                               class="md:col-span-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                        <select id="gift-budget" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500">
+                            <option value="">예산 선택</option>
+                            <option value="1~3만원">1~3만원</option>
+                            <option value="3~5만원">3~5만원</option>
+                            <option value="5~10만원">5~10만원</option>
+                            <option value="10만원 이상">10만원 이상</option>
+                        </select>
+                        <button onclick="analyzeGiftIdeas()" id="gift-analyze-btn" class="px-8 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors font-medium">
+                            <i class="fas fa-gift mr-2"></i>추천받기
+                        </button>
+                    </div>
+                    <div id="gift-results" class="mt-6 hidden"></div>
                 </div>
             </div>
         </div>
