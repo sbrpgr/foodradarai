@@ -65,6 +65,10 @@ function setupEventListeners() {
         if (e.key === 'Enter') analyzeLink();
     });
 
+    document.getElementById('gift-query')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') analyzeGiftIdeas();
+    });
+
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -126,8 +130,6 @@ function switchAnalysisTab(tabName) {
         loadNutritionAnalysis(currentAnalysis.similarProducts);
     }
 }
-}
-
 // Initialize navigation
 function initializeNavigation() {
     const nav = document.querySelector('nav');
@@ -339,6 +341,158 @@ async function analyzeCategory() {
         console.error('카테고리 분석 중 오류 발생:', error);
         showAnalysisError('카테고리 분석 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
+}
+
+// Analyze gift recommendations
+async function analyzeGiftIdeas() {
+    const query = document.getElementById('gift-query')?.value.trim();
+    const budget = document.getElementById('gift-budget')?.value;
+    const resultContainer = document.getElementById('gift-results');
+    const actionButton = document.getElementById('gift-analyze-btn');
+
+    if (!query) {
+        alert('누구에게 어떤 선물을 찾는지 입력해주세요.');
+        return;
+    }
+
+    resultContainer.classList.remove('hidden');
+    resultContainer.innerHTML = `
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-spinner fa-spin mr-2"></i>AI가 선물 아이디어를 만들고 있습니다...
+        </div>
+    `;
+    if (actionButton) {
+        actionButton.disabled = true;
+        actionButton.classList.add('opacity-60', 'cursor-not-allowed');
+    }
+
+    try {
+        const recommendations = await getGiftRecommendations(query, budget);
+        renderGiftRecommendations(recommendations, query, budget, resultContainer);
+    } catch (error) {
+        console.error('선물 추천 생성 오류:', error);
+        resultContainer.innerHTML = `
+            <div class="p-4 bg-red-50 border border-red-100 rounded-lg text-red-700 text-sm">
+                선물 추천 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+            </div>
+        `;
+    } finally {
+        if (actionButton) {
+            actionButton.disabled = false;
+            actionButton.classList.remove('opacity-60', 'cursor-not-allowed');
+        }
+    }
+}
+
+function fillGiftExample(query, budget) {
+    const queryInput = document.getElementById('gift-query');
+    const budgetInput = document.getElementById('gift-budget');
+
+    if (queryInput) queryInput.value = query;
+    if (budgetInput) budgetInput.value = budget;
+}
+
+async function getGiftRecommendations(query, budget) {
+    if (isGeminiAPIReady() && window.geminiAnalyzer?.geminiService) {
+        const prompt = `
+다음 조건에 맞는 선물 4개를 추천해주세요.
+- 대상/상황: ${query}
+- 예산: ${budget || '미정'}
+
+아래 JSON 형식으로만 답변해주세요.
+{
+  "recommendations": [
+    {
+      "name": "선물명",
+      "priceRange": "예상 가격대",
+      "reason": "추천 이유",
+      "tip": "센스있게 전달하는 팁"
+    }
+  ]
+}
+`;
+        const response = await window.geminiAnalyzer.geminiService.makeRequest('generateContent', {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.8,
+                maxOutputTokens: 1024
+            }
+        });
+
+        const text = response?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const parsed = parseJsonFromText(text);
+        if (parsed?.recommendations?.length) {
+            return parsed.recommendations.slice(0, 4);
+        }
+    }
+
+    return getMockGiftRecommendations(query, budget);
+}
+
+function parseJsonFromText(text) {
+    try {
+        return JSON.parse(text);
+    } catch (_) {
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        if (start >= 0 && end > start) {
+            try {
+                return JSON.parse(text.slice(start, end + 1));
+            } catch (_) {
+                return null;
+            }
+        }
+    }
+    return null;
+}
+
+function getMockGiftRecommendations(query, budget) {
+    return [
+        {
+            name: '프리미엄 티/커피 세트',
+            priceRange: budget || '2~5만원',
+            reason: `${query} 상황에서 취향 부담이 적고 실용적으로 즐길 수 있습니다.`,
+            tip: '손글씨 카드에 간단한 응원 메시지를 함께 전달해보세요.'
+        },
+        {
+            name: '무드등 + 디퓨저 세트',
+            priceRange: '3~7만원',
+            reason: '공간 분위기를 개선하는 선물이라 만족도가 높습니다.',
+            tip: '받는 사람 취향의 향(우디/시트러스)을 선택하면 더 좋습니다.'
+        },
+        {
+            name: '맞춤 각인 텀블러',
+            priceRange: '2~4만원',
+            reason: '매일 사용할 수 있어 기억에 오래 남습니다.',
+            tip: '이니셜이나 짧은 문구를 넣어 개인화하세요.'
+        },
+        {
+            name: '취향 기반 기프트카드',
+            priceRange: '원하는 금액',
+            reason: '취향을 정확히 모를 때 실패 확률이 낮습니다.',
+            tip: '추천 이유를 한 줄로 설명해주면 성의가 더 잘 전달됩니다.'
+        }
+    ];
+}
+
+function renderGiftRecommendations(items, query, budget, container) {
+    const cards = items.map(item => `
+        <div class="p-4 bg-white border border-pink-100 rounded-xl">
+            <div class="flex items-center justify-between mb-2">
+                <h5 class="font-semibold text-gray-800">${item.name}</h5>
+                <span class="text-xs px-2 py-1 bg-pink-50 text-pink-600 rounded-full">${item.priceRange}</span>
+            </div>
+            <p class="text-sm text-gray-600 mb-2">${item.reason}</p>
+            <p class="text-xs text-pink-600"><i class="fas fa-lightbulb mr-1"></i>${item.tip}</p>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="p-4 bg-pink-50 rounded-xl mb-3 text-sm text-pink-700">
+            <strong>${query}</strong>${budget ? ` · 예산 ${budget}` : ''} 조건에 맞춘 추천입니다.
+        </div>
+        <div class="grid md:grid-cols-2 gap-3">${cards}</div>
+    `;
 }
 
 // Analyze product by image
@@ -954,8 +1108,6 @@ function getSafetyLevelClass(safetyLevel) {
         default: return 'bg-gray-100 text-gray-800';
     }
 }
-}
-
 // Update base product info
 function updateBaseProductInfo(product) {
     const container = document.getElementById('base-product-info');
@@ -1360,5 +1512,7 @@ function tryLoadSavedAPIKey() {
 window.analyzeProduct = analyzeProduct;
 window.analyzeLink = analyzeLink;
 window.analyzeCategory = analyzeCategory;
+window.analyzeGiftIdeas = analyzeGiftIdeas;
+window.fillGiftExample = fillGiftExample;
 window.analyzeImageProduct = analyzeImageProduct;
 window.hideAIStatusInfo = hideAIStatusInfo;
