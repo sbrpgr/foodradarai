@@ -384,6 +384,14 @@ async function analyzeGiftIdeas() {
     }
 }
 
+function fillGiftExample(query, budget) {
+    const queryInput = document.getElementById('gift-query');
+    const budgetInput = document.getElementById('gift-budget');
+
+    if (queryInput) queryInput.value = query;
+    if (budgetInput) budgetInput.value = budget;
+}
+
 async function getGiftRecommendations(query, budget) {
     if (isGeminiAPIReady() && window.geminiAnalyzer?.geminiService) {
         const prompt = `
@@ -1505,5 +1513,6 @@ window.analyzeProduct = analyzeProduct;
 window.analyzeLink = analyzeLink;
 window.analyzeCategory = analyzeCategory;
 window.analyzeGiftIdeas = analyzeGiftIdeas;
+window.fillGiftExample = fillGiftExample;
 window.analyzeImageProduct = analyzeImageProduct;
 window.hideAIStatusInfo = hideAIStatusInfo;

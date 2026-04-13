@@ -150,6 +150,16 @@
                 </div>
 
                 <div id="gift-input" class="input-form hidden">
+                    <div class="mb-4 p-4 bg-pink-50 border border-pink-100 rounded-lg text-left">
+                        <p class="text-sm font-semibold text-pink-700 mb-1">
+                            <i class="fas fa-circle-info mr-1"></i>선물 추천 사용법
+                        </p>
+                        <ol class="text-xs text-pink-700 space-y-1 list-decimal list-inside">
+                            <li><strong>누구에게/무슨 상황인지</strong>를 짧게 입력하세요. (예: "친한 동료 퇴사 선물")</li>
+                            <li>원하면 예산을 선택하고 <strong>추천받기</strong>를 누르세요.</li>
+                            <li>나온 카드에서 마음에 드는 아이디어를 골라 구매처를 검색해보세요.</li>
+                        </ol>
+                    </div>
                     <div class="grid md:grid-cols-4 gap-4">
                         <input type="text" id="gift-query" placeholder="예: 30대 직장인 생일 선물" 
                                class="md:col-span-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
@@ -162,6 +172,17 @@
                         </select>
                         <button onclick="analyzeGiftIdeas()" id="gift-analyze-btn" class="px-8 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors font-medium">
                             <i class="fas fa-gift mr-2"></i>추천받기
+                        </button>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button onclick="fillGiftExample('20대 여자친구 100일 선물', '5~10만원')" class="px-3 py-1 text-xs rounded-full bg-white border border-pink-200 text-pink-700 hover:bg-pink-50">
+                            예시: 20대 연인
+                        </button>
+                        <button onclick="fillGiftExample('부모님 결혼기념일 선물', '10만원 이상')" class="px-3 py-1 text-xs rounded-full bg-white border border-pink-200 text-pink-700 hover:bg-pink-50">
+                            예시: 부모님 기념일
+                        </button>
+                        <button onclick="fillGiftExample('회사 동료 퇴사 선물', '3~5만원')" class="px-3 py-1 text-xs rounded-full bg-white border border-pink-200 text-pink-700 hover:bg-pink-50">
+                            예시: 직장 동료
                         </button>
                     </div>
                     <div id="gift-results" class="mt-6 hidden"></div>
